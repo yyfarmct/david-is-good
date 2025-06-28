@@ -374,6 +374,27 @@
                 max-height: 200px;
             }
         }
+        .recent-sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 240px;
+            height: 100vh;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-left: 1px solid #e2e8f0;
+            padding: 1rem;
+            box-shadow: -2px 0 8px rgba(0,0,0,0.05);
+            display: none;
+            z-index: 100;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #4a5568;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -409,6 +430,7 @@
             </div>
         </div>
     </div>
+    <aside id="recentSidebar" class="recent-sidebar"></aside>
 
     <script>
         // Memory storage for demonstration (works here but won't persist)
@@ -483,6 +505,7 @@
                 
                 loadBackgroundImage();
                 loadEntries();
+                renderRecentSidebar();
                 setupEventListeners();
             } catch (error) {
                 console.error('앱 초기화 중 오류:', error);
@@ -643,6 +666,7 @@
                 
                 // Reload entries display
                 loadEntries();
+                renderRecentSidebar();
                 
                 // Show success message
                 showMessage('감정이 저장되었습니다! ✨');
@@ -674,6 +698,7 @@
                         <div class="entry-text">${escapeHtml(entry.text)}</div>
                     </div>
                 `).join('');
+                renderRecentSidebar();
             } catch (error) {
                 console.error('항목 로드 오류:', error);
                 document.getElementById('entriesList').innerHTML = '<div class="no-entries">항목을 불러오는데 실패했습니다.</div>';
@@ -717,5 +742,6 @@
             }, timeout);
         }
     </script>
+    <script src="recentSidebar.js"></script>
 </body>
 </html>
