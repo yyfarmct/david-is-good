@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#667eea">
+    <title>감정 일기 | Emotional Diary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Brush+Script&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            color: #333;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* iOS Safari viewport fix */
+        body {
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+        }
+
+        .overlay {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            padding: 1rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .title {
+            font-family: 'Nanum Brush Script', cursive;
+            font-size: 2.2rem;
+            color: #4a5568;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .subtitle {
+            color: #718096;
+            font-weight: 300;
+            font-size: 0.95rem;
+        }
+
+        .upload-section {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.875rem 1.5rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            font-family: inherit;
+        }
+
+        .upload-btn:hover, .upload-btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            outline: none;
+        }
+
+        .upload-btn:active {
+            transform: translateY(0);
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        .emotion-input {
+            margin-bottom: 2rem;
+        }
+
+        .emotion-input label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: #4a5568;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .emotion-textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-family: 'Noto Sans KR', sans-serif;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 100px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.8);
+            line-height: 1.5;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        .emotion-textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .save-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+            width: 100%;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            font-family: inherit;
+        }
+
+        .save-btn:hover, .save-btn:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+            outline: none;
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        .save-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .entries-section {
+            margin-top: 3rem;
+        }
+
+        .entries-title {
+            font-family: 'Nanum Brush Script', cursive;
+            font-size: 1.4rem;
+            color: #4a5568;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .entries-list {
+            max-height: 350px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .entry {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .entry:hover {
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .entry-date {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .entry-text {
+            color: #2d3748;
+            line-height: 1.5;
+            word-break: keep-all;
+            overflow-wrap: break-word;
+        }
+
+        .no-entries {
+            text-align: center;
+            color: #a0aec0;
+            font-style: italic;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .success-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #48bb78;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateX(-50%) translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(-50%) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Scrollbar styling */
+        .entries-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .entries-list::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+
+        .entries-list::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.3);
+            border-radius: 3px;
+        }
+
+        .entries-list::-webkit-scrollbar-thumb:hover {
+            background: rgba(102, 126, 234, 0.5);
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .container {
+                margin: 0.5rem;
+                padding: 1.5rem;
+                border-radius: 15px;
+            }
+
+            .title {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+            }
+
+            .overlay {
+                padding: 0.5rem;
+                padding-top: 1rem;
+            }
+
+            .emotion-textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+                min-height: 80px;
+            }
+
+            .entries-list {
+                max-height: 300px;
+            }
+
+            .upload-btn, .save-btn {
+                padding: 0.875rem 1.5rem;
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Very small screens */
+        @media (max-width: 480px) {
+            .container {
+                margin: 0.25rem;
+                padding: 1rem;
+            }
+
+            .title {
+                font-size: 1.8rem;
+            }
+
+            .entries-list {
+                max-height: 250px;
+            }
+        }
+
+        /* Landscape orientation on mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .overlay {
+                padding-top: 0.5rem;
+            }
+            
+            .container {
+                margin: 0.25rem;
+            }
+
+            .entries-list {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <div class="container">
+            <div class="header">
+                <h1 class="title">감정 일기</h1>
+                <p class="subtitle">오늘의 마음을 기록해보세요</p>
+            </div>
+
+            <div class="upload-section">
+                <button class="upload-btn" onclick="triggerImageUpload()">
+                    🌅 배경 이미지 업로드
+                </button>
+                <input type="file" id="imageInput" accept="image/*" onchange="handleImageUpload(event)">
+            </div>
+
+            <div class="emotion-input">
+                <label for="emotionText">오늘의 감정을 한 문장으로 표현해보세요:</label>
+                <textarea 
+                    id="emotionText" 
+                    class="emotion-textarea" 
+                    placeholder="예: 오늘은 따뜻한 햇살처럼 마음이 평온했어요..."
+                    maxlength="200"
+                ></textarea>
+            </div>
+
+            <button class="save-btn" onclick="saveEntry()" id="saveButton">💝 오늘의 감정 저장하기</button>
+
+            <div class="entries-section">
+                <h2 class="entries-title">지난 감정들</h2>
+                <div id="entriesList" class="entries-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Memory storage for demonstration (works here but won't persist)
+        let memoryEntries = [];
+        let memoryBackgroundImage = null;
+        
+        // Check if localStorage is available
+        function isLocalStorageAvailable() {
+            try {
+                const test = '__localStorage_test__';
+                localStorage.setItem(test, test);
+                localStorage.removeItem(test);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        const useLocalStorage = isLocalStorageAvailable();
+        
+        // Storage functions that work with both localStorage and memory
+        function saveToStorage(key, value) {
+            if (useLocalStorage) {
+                try {
+                    localStorage.setItem(key, value);
+                } catch (e) {
+                    console.warn('localStorage 저장 실패, 메모리 사용');
+                    if (key === 'emotionalDiaryEntries') {
+                        memoryEntries = JSON.parse(value);
+                    } else if (key === 'diaryBackgroundImage') {
+                        memoryBackgroundImage = value;
+                    }
+                }
+            } else {
+                if (key === 'emotionalDiaryEntries') {
+                    memoryEntries = JSON.parse(value);
+                } else if (key === 'diaryBackgroundImage') {
+                    memoryBackgroundImage = value;
+                }
+            }
+        }
+        
+        function getFromStorage(key, defaultValue = null) {
+            if (useLocalStorage) {
+                try {
+                    return localStorage.getItem(key) || defaultValue;
+                } catch (e) {
+                    console.warn('localStorage 읽기 실패, 메모리 사용');
+                }
+            }
+            
+            if (key === 'emotionalDiaryEntries') {
+                return JSON.stringify(memoryEntries);
+            } else if (key === 'diaryBackgroundImage') {
+                return memoryBackgroundImage || defaultValue;
+            }
+            return defaultValue;
+        }
+
+        // Initialize app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        // Initialize the application
+        function initializeApp() {
+            try {
+                // Show environment message
+                if (!useLocalStorage) {
+                    showMessage('📱 데모 모드입니다. Netlify에서는 완전히 저장됩니다!', 'info');
+                }
+                
+                loadBackgroundImage();
+                loadEntries();
+                setupEventListeners();
+            } catch (error) {
+                console.error('앱 초기화 중 오류:', error);
+                showMessage('앱을 불러오는 중 문제가 발생했습니다.', 'error');
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const emotionText = document.getElementById('emotionText');
+            
+            // Enter key handling (save on Enter, new line on Shift+Enter)
+            emotionText.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    saveEntry();
+                }
+            });
+
+            // Character counter
+            emotionText.addEventListener('input', function(e) {
+                const maxLength = 200;
+                const currentLength = e.target.value.length;
+                
+                if (currentLength >= maxLength) {
+                    e.target.style.borderColor = '#fc8181';
+                } else {
+                    e.target.style.borderColor = '#e2e8f0';
+                }
+            });
+
+            // Prevent form submission on Enter
+            emotionText.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        // Trigger image upload
+        function triggerImageUpload() {
+            const input = document.getElementById('imageInput');
+            input.click();
+        }
+
+        // Handle image upload
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Check file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showMessage('이미지 파일이 너무 큽니다. 5MB 이하의 파일을 선택해주세요.', 'error');
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                showMessage('이미지 파일만 업로드할 수 있습니다.', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imageData = e.target.result;
+                    
+                    // Save to storage
+                    saveToStorage('diaryBackgroundImage', imageData);
+                    
+                    // Apply as background
+                    applyBackgroundImage(imageData);
+                    
+                    showMessage('배경 이미지가 적용되었습니다! 🌅');
+                } catch (error) {
+                    console.error('이미지 저장 오류:', error);
+                    showMessage('이미지 저장에 실패했습니다.', 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showMessage('이미지 파일을 읽는데 실패했습니다.', 'error');
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        // Apply background image
+        function applyBackgroundImage(imageData) {
+            const body = document.body;
+            body.style.backgroundImage = `url(${imageData})`;
+            body.style.backgroundSize = 'cover';
+            body.style.backgroundPosition = 'center';
+            body.style.backgroundAttachment = 'fixed';
+        }
+
+        // Load saved background image
+        function loadBackgroundImage() {
+            try {
+                const savedImage = getFromStorage('diaryBackgroundImage');
+                if (savedImage) {
+                    applyBackgroundImage(savedImage);
+                }
+            } catch (error) {
+                console.error('배경 이미지 로드 오류:', error);
+            }
+        }
+
+        // Save diary entry
+        function saveEntry() {
+            const emotionText = document.getElementById('emotionText').value.trim();
+            const saveButton = document.getElementById('saveButton');
+            
+            if (!emotionText) {
+                showMessage('감정을 입력해주세요! 💭', 'error');
+                document.getElementById('emotionText').focus();
+                return;
+            }
+
+            try {
+                // Disable button during save
+                saveButton.disabled = true;
+                saveButton.textContent = '저장 중...';
+
+                // Get current date in Korean format
+                const now = new Date();
+                const koreanDate = now.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    weekday: 'long'
+                });
+
+                // Create entry object
+                const entry = {
+                    id: Date.now(),
+                    date: koreanDate,
+                    text: emotionText,
+                    timestamp: now.getTime()
+                };
+
+                // Get existing entries
+                let entries = JSON.parse(getFromStorage('emotionalDiaryEntries', '[]'));
+                
+                // Add new entry to the beginning
+                entries.unshift(entry);
+                
+                // Limit to last 100 entries to prevent storage overflow
+                if (entries.length > 100) {
+                    entries = entries.slice(0, 100);
+                }
+                
+                // Save to storage
+                saveToStorage('emotionalDiaryEntries', JSON.stringify(entries));
+                
+                // Clear input
+                document.getElementById('emotionText').value = '';
+                
+                // Reload entries display
+                loadEntries();
+                
+                // Show success message
+                showMessage('감정이 저장되었습니다! ✨');
+                
+            } catch (error) {
+                console.error('저장 오류:', error);
+                showMessage('저장에 실패했습니다. 다시 시도해주세요.', 'error');
+            } finally {
+                // Re-enable button
+                saveButton.disabled = false;
+                saveButton.textContent = '💝 오늘의 감정 저장하기';
+            }
+        }
+
+        // Load diary entries
+        function loadEntries() {
+            try {
+                const entries = JSON.parse(getFromStorage('emotionalDiaryEntries', '[]'));
+                const entriesList = document.getElementById('entriesList');
+                
+                if (entries.length === 0) {
+                    entriesList.innerHTML = '<div class="no-entries">아직 기록된 감정이 없어요.<br>첫 번째 감정을 기록해보세요! ✨</div>';
+                    return;
+                }
+
+                entriesList.innerHTML = entries.map(entry => `
+                    <div class="entry fade-in">
+                        <div class="entry-date">${escapeHtml(entry.date)}</div>
+                        <div class="entry-text">${escapeHtml(entry.text)}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('항목 로드 오류:', error);
+                document.getElementById('entriesList').innerHTML = '<div class="no-entries">항목을 불러오는데 실패했습니다.</div>';
+            }
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Show message to user
+        function showMessage(message, type = 'success') {
+            // Remove existing message
+            const existingMessage = document.querySelector('.success-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            // Create new message
+            const messageEl = document.createElement('div');
+            messageEl.className = 'success-message';
+            messageEl.textContent = message;
+            
+            if (type === 'error') {
+                messageEl.style.background = '#e53e3e';
+            } else if (type === 'info') {
+                messageEl.style.background = '#3182ce';
+            }
+            
+            document.body.appendChild(messageEl);
+            
+            // Remove after 4 seconds for info messages, 3 for others
+            const timeout = type === 'info' ? 4000 : 3000;
+            setTimeout(() => {
+                if (messageEl.parentNode) {
+                    messageEl.remove();
+                }
+            }, timeout);
+        }
+    </script>
+</body>
+</html>
